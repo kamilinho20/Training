@@ -1,0 +1,10 @@
+﻿@page "/test"
+<h3>Test @counter</h3>
+<button class="btn btn-dark" @onclick="Syf">click me</button>
+@code {
+    private int counter = 0;
+    private async Task Syf()
+    {
+        counter++;
+    }
+}

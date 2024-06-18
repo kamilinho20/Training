@@ -1,0 +1,86 @@
+﻿@page "/grouptrainings"
+@inject IGroupTrainingService GroupTrainingService
+
+
+<h3>Group Trainings</h3>
+<button class="btn btn-primary mb-3" @onclick="OpenModal">Add New Group Training</button>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Trainer Id</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var training in groupTrainings)
+        {
+            <tr>
+                <td>@training.Id</td>
+                <td>@training.Name</td>
+                <td>@training.TrainerId</td>
+                <td>@training.Date</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => DeleteGroupTraining(training.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Modal Title="Add New Group Training" Model="newGroupTraining" OnSubmit="AddGroupTraining" @ref="modalComponent">
+    <EditForm Model="newGroupTraining">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="newGroupTraining.Name" />
+        </div>
+        <div class="mb-3">
+            <label for="trainerId" class="form-label">Trainer Id</label>
+            <InputNumber id="trainerId" class="form-control" @bind-Value="newGroupTraining.TrainerId" />
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <InputDate id="date" class="form-control" @bind-Value="newGroupTraining.Date" />
+        </div>
+    </EditForm>
+</Modal>
+
+@code {
+    private List<GroupTraining> groupTrainings = new List<GroupTraining>();
+    private GroupTraining newGroupTraining = new GroupTraining();
+    private Modal<GroupTraining> modalComponent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshGroupTrainings();
+    }
+
+    protected async Task RefreshGroupTrainings()
+    {
+        groupTrainings.Clear();
+        groupTrainings.AddRange(await GroupTrainingService.GetGroupTrainingsAsync());
+    }
+
+    private async Task AddGroupTraining()
+    {
+        await GroupTrainingService.CreateGroupTrainingAsync(newGroupTraining);
+        await RefreshGroupTrainings();
+        newGroupTraining = new GroupTraining();
+        await modalComponent.HideModal(); // Hide the modal
+    }
+
+    private async Task DeleteGroupTraining(int trainingId)
+    {
+        await GroupTrainingService.DeleteGroupTrainingAsync(trainingId);
+        await RefreshGroupTrainings();
+    }
+
+    private async Task OpenModal()
+    {
+        await modalComponent.ShowModal();
+    }
+}

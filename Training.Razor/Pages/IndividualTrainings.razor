@@ -1,0 +1,92 @@
+﻿@page "/individualtrainings"
+@inject IIndividualTrainingService IndividualTrainingService
+@inject IJSRuntime JS
+
+<h3>Individual Trainings</h3>
+<button class="btn btn-primary mb-3" @onclick="OpenModal">Add New Individual Training</button>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Id</th>
+            <th>Client Id</th>
+            <th>Trainer Id</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var training in individualTrainings)
+        {
+            <tr>
+                <td>@training.Id</td>
+                <td>@training.ClientId</td>
+                <td>@training.TrainerId</td>
+                <td>@training.Date</td>
+                <td>@training.Description</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => DeleteIndividualTraining(training.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Modal Title="Add New Individual Training" Model="newIndividualTraining" OnSubmit="AddIndividualTraining" @ref="modalComponent">
+    <EditForm Model="newIndividualTraining">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="clientId" class="form-label">Client Id</label>
+            <InputNumber id="clientId" class="form-control" @bind-Value="newIndividualTraining.ClientId" />
+        </div>
+        <div class="mb-3">
+            <label for="trainerId" class="form-label">Trainer Id</label>
+            <InputNumber id="trainerId" class="form-control" @bind-Value="newIndividualTraining.TrainerId" />
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <InputDate id="date" class="form-control" @bind-Value="newIndividualTraining.Date" />
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <InputText id="description" class="form-control" @bind-Value="newIndividualTraining.Description" />
+        </div>
+    </EditForm>
+</Modal>
+
+@code {
+    private List<IndividualTraining> individualTrainings = new List<IndividualTraining>();
+    private IndividualTraining newIndividualTraining = new IndividualTraining();
+    private Modal<IndividualTraining> modalComponent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshIndividualTrainings();
+    }
+
+    protected async Task RefreshIndividualTrainings()
+    {
+        individualTrainings.Clear();
+        individualTrainings.AddRange(await IndividualTrainingService.GetIndividualTrainingsAsync());
+    }
+
+    private async Task AddIndividualTraining()
+    {
+        await IndividualTrainingService.CreateIndividualTrainingAsync(newIndividualTraining);
+        await RefreshIndividualTrainings();
+        newIndividualTraining = new IndividualTraining();
+        await modalComponent.HideModal(); // Hide the modal
+    }
+
+    private async Task DeleteIndividualTraining(int trainingId)
+    {
+        await IndividualTrainingService.DeleteIndividualTrainingAsync(trainingId);
+        await RefreshIndividualTrainings();
+    }
+
+    private async Task OpenModal()
+    {
+        await modalComponent.ShowModal();
+    }
+}

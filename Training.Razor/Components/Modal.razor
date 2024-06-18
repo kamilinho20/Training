@@ -1,0 +1,43 @@
+﻿@typeparam TModel
+
+<div class="modal fade" id="modalForm" tabindex="-1" aria-labelledby="modalFormLabel" aria-hidden="true" @ref="modalRef">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFormLabel">@Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="HandleSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public TModel Model { get; set; }
+    @inject IJSRuntime JS
+    private ElementReference modalRef;
+
+    private async Task HandleSubmit()
+    {
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    public async Task HideModal()
+    {
+        await JS.InvokeVoidAsync("hideModal", modalRef);
+    }
+
+    public async Task ShowModal()
+    {
+        await JS.InvokeVoidAsync("showModal", modalRef);
+    }
+}

@@ -1,0 +1,98 @@
+﻿@page "/employees"
+
+@inject IEmployeeService EmployeeService
+
+<h3>Employees</h3>
+<button class="btn btn-primary mb-3" @onclick="OpenModal">Add New Employee</button>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in employees)
+        {
+            <tr>
+                <td>@employee.Id</td>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td>@employee.Role</td>
+                <td>@employee.Email</td>
+                <td>@employee.Phone</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => DeleteEmployee(employee.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Modal Title="Add New Employee" Model="newEmployee" OnSubmit="AddEmployee" @ref="modalComponent">
+    <EditForm Model="newEmployee">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <InputText id="firstName" class="form-control" @bind-Value="newEmployee.FirstName" />
+        </div>
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <InputText id="lastName" class="form-control" @bind-Value="newEmployee.LastName" />
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <InputText id="role" class="form-control" @bind-Value="newEmployee.Role" />
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="newEmployee.Email" />
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <InputText id="phone" class="form-control" @bind-Value="newEmployee.Phone" />
+        </div>
+    </EditForm>
+</Modal>
+
+@code {
+    private List<Employee> employees = new List<Employee>();
+    private Employee newEmployee = new Employee();
+    private Modal<Employee> modalComponent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshEmployees();
+    }
+
+    protected async Task RefreshEmployees()
+    {
+        employees.Clear();
+        employees.AddRange(await EmployeeService.GetEmployeesAsync());
+    }
+
+    private async Task AddEmployee()
+    {
+        await EmployeeService.CreateEmployeeAsync(newEmployee);
+        await RefreshEmployees();
+        newEmployee = new Employee();
+        await modalComponent.HideModal(); // Hide the modal
+    }
+
+    private async Task DeleteEmployee(int employeeId)
+    {
+        await EmployeeService.DeleteEmployeeAsync(employeeId);
+        await RefreshEmployees();
+    }
+
+    private async Task OpenModal()
+    {
+        await modalComponent.ShowModal();
+    }
+}
