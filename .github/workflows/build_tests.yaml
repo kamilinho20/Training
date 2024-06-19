@@ -42,7 +42,15 @@ jobs:
         with:
           name: CodeCoverage
           path: TestResults/Coverage
-        
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./TestResults/Coverage/*.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
           
           
 
