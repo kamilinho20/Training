@@ -7,7 +7,12 @@ on:
   push:
     branches:
       - master
-
+      
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  
 jobs:
   build:
     name: Build solution
