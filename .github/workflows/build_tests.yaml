@@ -52,10 +52,10 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
       - uses: dorny/test-reporter@v1
+        if: success() || failure()
         with:
-          artifact: TestResults            # artifact name
-          name: XUnit tests                  # Name of the check run which will be created
-          path: '*.trx'                     # Path to test results (inside artifact .zip)
+          name: XUnit tests
+          path: ./TestResults/*.trx
           reporter: dotnet-trx
           
           
