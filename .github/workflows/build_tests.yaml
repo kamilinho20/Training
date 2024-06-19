@@ -14,19 +14,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: build projects
+      - name: Install dependencies
         run: |
-          dotnet build Training.sln
+          dotnet restore
 
-      - name: run unit tests
+      - name: Build projects
         run: |
-          dotnet test Training.sln --results-directory TestResults --collect:"XPlat Code Coverage"
+          dotnet build Training.sln --no-restore
 
-      - name: Test Summary
-        uses: test-summary/action@v2
+      - name: Run unit tests
+        run: |
+          dotnet test Training.sln --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults
+          
+      - name: Publish test results
+        uses: actions/upload-artifact@v3
         with:
-          paths: "TestResults/**/*.xml"
-        if: always()
+          name: TestResults
+          path: ./TestResults
+
+      - name: Report code coverage
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          reportgenerator "-reports:TestResults/**/*.xml" "-targetdir:TestResults/Coverage" "-reporttypes:Html"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: CodeCoverage
+          path: TestResults/Coverage
         
           
           
