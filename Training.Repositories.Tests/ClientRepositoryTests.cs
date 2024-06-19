@@ -1,7 +1,6 @@
 ﻿namespace Training.Repositories.Tests
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Training.Core.Model;
@@ -17,20 +16,27 @@
         public ClientRepositoryTests()
         {
             var options = new DbContextOptionsBuilder<GymContext>()
-                .UseInMemoryDatabase(databaseName: "GymDatabase")
+                .UseInMemoryDatabase(databaseName: "ClientRepositoryTests")
                 .Options;
             _context = new GymContext(options);
             _clientRepository = new ClientRepository(_context);
+        }
+
+        private void ClearDatabase()
+        {
+            _context.GroupTrainings.RemoveRange(_context.GroupTrainings);
+            _context.SaveChanges();
         }
 
         [Fact]
         public async Task GetAllAsync_ReturnsAllClients()
         {
             // Arrange
+            ClearDatabase();
             _context.Clients.AddRange(new List<Client>
         {
-            new Client { Id = 1, FirstName = "John", LastName = "Doe" },
-            new Client { Id = 2, FirstName = "Jane", LastName = "Doe" }
+            new Client { FirstName = "John", LastName = "Doe", Email = "john@example.com", Phone = "123456789" },
+            new Client { FirstName = "Jane", LastName = "Doe", Email = "jane@example.com", Phone = "987654321" }
         });
             await _context.SaveChangesAsync();
 
@@ -46,7 +52,8 @@
         public async Task GetByIdAsync_ReturnsClient()
         {
             // Arrange
-            var client = new Client { Id = 1, FirstName = "John", LastName = "Doe" };
+            ClearDatabase();
+            var client = new Client { FirstName = "John", LastName = "Doe", Email = "john@example.com", Phone = "123456789" };
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 
@@ -62,7 +69,8 @@
         public async Task AddAsync_AddsClient()
         {
             // Arrange
-            var client = new Client { Id = 3, FirstName = "New", LastName = "Client" };
+            ClearDatabase();
+            var client = new Client { FirstName = "New", LastName = "Client", Email = "new@example.com", Phone = "555555555" };
 
             // Act
             await _clientRepository.AddAsync(client);
@@ -77,7 +85,8 @@
         public async Task UpdateAsync_UpdatesClient()
         {
             // Arrange
-            var client = new Client { Id = 1, FirstName = "John", LastName = "Doe" };
+            ClearDatabase();
+            var client = new Client { FirstName = "John", LastName = "Doe", Email = "john@example.com", Phone = "123456789" };
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 
@@ -96,7 +105,8 @@
         public async Task DeleteAsync_DeletesClient()
         {
             // Arrange
-            var client = new Client { Id = 1, FirstName = "John", LastName = "Doe" };
+            ClearDatabase();
+            var client = new Client { FirstName = "John", LastName = "Doe", Email = "john@example.com", Phone = "123456789" };
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 
