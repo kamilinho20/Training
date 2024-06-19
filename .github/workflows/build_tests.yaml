@@ -51,6 +51,12 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
+      - uses: dorny/test-reporter@v1
+        with:
+          artifact: TestResults            # artifact name
+          name: XUnit tests                  # Name of the check run which will be created
+          path: '*.trx'                     # Path to test results (inside artifact .zip)
+          reporter: dotnet-trx
           
           
 
