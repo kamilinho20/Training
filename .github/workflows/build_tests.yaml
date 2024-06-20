@@ -54,6 +54,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./TestResults/Coverage/Cobertura.xml
           flags: unittests
+          codecov_yml_path: ./codecov.yml
           name: codecov-umbrella
           fail_ci_if_error: true
       - uses: dorny/test-reporter@v1
